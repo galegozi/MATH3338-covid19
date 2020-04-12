@@ -3,14 +3,17 @@
 # output csv with id, lev(id)
 import Levenshtein as L
 import pandas as pd
-f = open("genomes/sars_cov_2_ref.fasta", "r")
+f = open("genomes/sars_cov_2/sars_cov_2_ref.fasta", "r")
 ref_seq = ''.join([x[:-1] for x in f.readlines()[1:]])
 # dist = Levenshtein.distance(ref_seq, 'abc')
 f.close()
-f = open("genomes/sars_cov_2.fasta")
+virus_seq_info_dir = "genomes/sars_urbani"
+fasta = virus_seq_info_dir + "/sars_seq.fasta"
+csv = virus_seq_info_dir + "/sars_seq.csv"
+f = open(fasta)
 genomes = f.read().split('>')[1:]
 f.close()
-g = pd.read_csv("genomes/sars_cov_2.csv")
+g = pd.read_csv(csv)
 merge = g[['Accession', 'Collection_Date', 'Nuc_Completeness']]
 merge.drop(merge[merge['Nuc_Completeness'] != 'complete'].index, inplace=True)
 merge['Distance'] = [0]*len(merge.index)
@@ -40,5 +43,5 @@ for g in genomes:
     # merge['Distance'] = distance
 # print(dataset)
 print(merge)
-merge.to_csv('output/sars_cov_2.csv', index = False)
+merge.to_csv('output/sars_urbani.csv', index = False)
 # print(dist)
