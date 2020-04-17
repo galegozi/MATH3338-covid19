@@ -23,7 +23,8 @@ def mutate(seq):
     return seq[:pos] + ch + seq[pos:]
 
 
-def get_dist(l):
+def get_dist(arg):
+    (l, covid_seq) = arg
     return list(map(lambda x: (L.distance(covid_seq, x), x), l))
 
 
@@ -65,7 +66,7 @@ if __name__ == "__main__":
         g2 = gen[gen_len//4:gen_len//2]
         g3 = gen[gen_len//2:3*gen_len//4]
         g4 = gen[3*gen_len//4:]
-        [g1, g2, g3, g4] = work_pool.map(get_dist, [g1, g2, g3, g4])
+        [g1, g2, g3, g4] = work_pool.map(get_dist, [(g1, covid_seq), (g2, covid_seq), (g3, covid_seq), (g4, covid_seq)])
         # gen = g1 + g2 + g3 + g4
         # gen = list(map(lambda x: (L.distance(covid_seq, x), x), gen))
         [d1, d2, d3, d4] = work_pool.map(getFElement, [g1, g2, g3, g4])
