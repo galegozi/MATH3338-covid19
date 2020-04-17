@@ -1,12 +1,16 @@
 from random import randrange, choice
 import Levenshtein as L
+from multiprocessing import Pool
+print('Done Imports')
 # First, read in files.
 f = open("genomes/sars_cov_2/sars_cov_2_ref.fasta", "r")
 covid_seq = ''.join([x[:-1] for x in f.readlines()[1:]])
 f.close()
+print('Done reading the COVID-CoV-2 sequence')
 f = open("genomes/sars_urbani/default_sars.fasta", "r")
 sars_seq = ''.join([x[:-1] for x in f.readlines()[1:]])
 f.close()
+print('Done reading the SARS Urbani sequence')
 # print(sars_seq)
 # print(covid_seq)
 # Start by applying 500 mutations on sars virus
@@ -32,7 +36,17 @@ gen = []
 for _ in range(500):
     gen.append(mutate(sars_seq))
 min_dist = L.distance(covid_seq, sars_seq)
+def get_dist(l):
+    return list(map(lambda x: (L.distance(covid_seq, x), x), gen))
+work_pool = Pool(4)
+print('Ready for the simulation')
 for _ in range(50000):
+    gen_len = len(gen)
+    g1 = gen[:gen_len//4]
+    g2 = gen[gen_len//4:gen_len//2]
+    g3 = gen[gen_len//2:3*gen_len//4]
+    g4 = gen[3*gen_len//4:]
+    [g1, g2, g3, g4] = work_pool.map(get_dist, [g1, g2, g3, g4])
     gen = list(map(lambda x: (L.distance(covid_seq, x), x), gen))
     distances = list(map(lambda x: x[0], gen))
     min_dist = min(min_dist, min(distances))
