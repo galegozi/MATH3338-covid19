@@ -16,7 +16,8 @@ def mutate(seq):
         return seq[:pos] + seq[pos+1:]
     # either a replace or an add. Would need a character.
     l = ['A', 'C', 'G', 'T']
-    l.remove(seq[pos])
+    if seq[pos] in l:
+        l.remove(seq[pos])
     ch = choice(l)
     if(todo == "Replace"):
         return seq[:pos] + ch + seq[pos+1:]
