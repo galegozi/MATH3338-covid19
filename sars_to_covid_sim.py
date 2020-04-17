@@ -47,7 +47,8 @@ for _ in range(50000):
     g3 = gen[gen_len//2:3*gen_len//4]
     g4 = gen[3*gen_len//4:]
     [g1, g2, g3, g4] = work_pool.map(get_dist, [g1, g2, g3, g4])
-    gen = list(map(lambda x: (L.distance(covid_seq, x), x), gen))
+    gen = g1 + g2 + g3 + g4
+    # gen = list(map(lambda x: (L.distance(covid_seq, x), x), gen))
     distances = list(map(lambda x: x[0], gen))
     min_dist = min(min_dist, min(distances))
     gen.sort()
