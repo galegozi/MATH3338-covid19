@@ -47,22 +47,40 @@ for _ in range(50000):
     g3 = gen[gen_len//2:3*gen_len//4]
     g4 = gen[3*gen_len//4:]
     [g1, g2, g3, g4] = work_pool.map(get_dist, [g1, g2, g3, g4])
-    gen = g1 + g2 + g3 + g4
+    # gen = g1 + g2 + g3 + g4
     # gen = list(map(lambda x: (L.distance(covid_seq, x), x), gen))
-    distances = list(map(lambda x: x[0], gen))
-    min_dist = min(min_dist, min(distances))
+    [d1, d2, d3, d4] = work_pool.map(lambda x: x[0], [g1, g2, g3, g4])
+    # distances = list(map(lambda x: x[0], gen))
+    [m1, m2, m3, m4] = work_pool.map(min, [d1, d2, d3, d4])
+    min_dist = min(min_dist, m1, m2, m3, m4)
+    gen = g1+g2+g3+g4
     gen.sort()
-    gen = list(map(lambda x: x[1], gen))
+    g1 = gen[:gen_len//4]
+    g2 = gen[gen_len//4:gen_len//2]
+    g3 = gen[gen_len//2:3*gen_len//4]
+    g4 = gen[3*gen_len//4:]
+    [g1, g2, g3, g4] = work_pool.map(lambda x: x[1], [g1, g2, g3, g4])
+    # gen = list(map(lambda x: x[1], gen))
     remutate = []
     direct_copy = []
+    gen = g1+g2+g3+g4
     for _ in range(250):
         chosen = choice(gen)
         gen.remove(chosen)
         remutate.append(chosen)
         direct_copy.append(gen[0])
         gen = gen[1:]
-    remutate = list(map(lambda x: mutate(x), remutate))
+    mut_len = len(remutate)
+    [m1, m2, m3, m4] = [remutate[:mut_len//4], remutate[mut_len//4:mut_len//2], remutate[mut_len//2:3*mut_len//4], remutate[3*mut_len//4:]]
+    [m1, m2, m3, m4] = work_pool.map(lambda x: list(map(lambda k: mutate(k), x)), [m1, m2, m3, m4])
+    # remutate = list(map(lambda x: mutate(x), remutate))
     gen = remutate + direct_copy
+    g1 = gen[:gen_len//4]
+    g2 = gen[gen_len//4:gen_len//2]
+    g3 = gen[gen_len//2:3*gen_len//4]
+    g4 = gen[3*gen_len//4:]
+    [g1, g2, g3, g4] = work_pool.map(mutate, [g1, g2, g3, g4])
+    gen = g1 + g2 + g3 + g4
     print(min_dist)
 # for _ in range(1000):
 #     print(L.distance(sars_seq, mutate(sars_seq)))
