@@ -37,7 +37,7 @@ for _ in range(500):
     gen.append(mutate(sars_seq))
 min_dist = L.distance(covid_seq, sars_seq)
 def get_dist(l):
-    return list(map(lambda x: (L.distance(covid_seq, x), x), gen))
+    return list(map(lambda x: (L.distance(covid_seq, x), x), l))
 work_pool = Pool(4)
 print('Ready for the simulation')
 for _ in range(50000):
