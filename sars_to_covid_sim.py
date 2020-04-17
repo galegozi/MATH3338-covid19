@@ -2,6 +2,9 @@ from random import randrange, choice
 import Levenshtein as L
 from multiprocessing import Pool
 
+def gen_mutations(arg):
+    (seq, l) = arg
+    return list(map(lambda x: mutate(seq), [1]*l))
 
 def mutate(seq):
     # choose a character to mutate
@@ -55,11 +58,10 @@ if __name__ == "__main__":
     # print(sars_seq)
     # print(covid_seq)
     # Start by applying 500 mutations on sars virus
-    gen = []
-    for _ in range(500):
-        gen.append(mutate(sars_seq))
-    min_dist = L.distance(covid_seq, sars_seq)
     work_pool = Pool(4)
+    [g1, g2, g3, g4] = work_pool.map(gen_mutations, [(sars_seq, 125)]*4)
+    gen = g1+g2+g3+g4
+    min_dist = L.distance(covid_seq, sars_seq)
     print('Ready for the simulation')
     for _ in range(50000):
         gen_len = len(gen)
@@ -101,7 +103,7 @@ if __name__ == "__main__":
         g2 = gen[gen_len//4:gen_len//2]
         g3 = gen[gen_len//2:3*gen_len//4]
         g4 = gen[3*gen_len//4:]
-        [g1, g2, g3, g4] = work_pool.map(mutate, [g1, g2, g3, g4])
+        [g1, g2, g3, g4] = work_pool.map(list_mutate, [g1, g2, g3, g4])
         gen = g1 + g2 + g3 + g4
         print(min_dist)
     # for _ in range(1000):
