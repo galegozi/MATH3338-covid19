@@ -62,7 +62,7 @@ if __name__ == "__main__":
     [g1, g2, g3, g4] = work_pool.map(gen_mutations, [(sars_seq, 125)]*4)
     gen = g1+g2+g3+g4
     min_dist = L.distance(covid_seq, sars_seq) # Expect 6013 with current files
-    f = open("output/simulation/sim.csv", "a")
+    f = open("output/simulation/sim.csv", "w")
     f.write("Closest, Current Closest")
     f.close()
     print('Ready for the simulation')
@@ -110,7 +110,7 @@ if __name__ == "__main__":
         [g1, g2, g3, g4] = work_pool.map(list_mutate, [g1, g2, g3, g4])
         gen = g1 + g2 + g3 + g4
         f = open("output/simulation/sim.csv", "a")
-        f.write("%d,%d" % min_dist, current_min)
+        f.write("%d,%d" % (min_dist, current_min))
         f.close()
         print(min_dist, current_min)
     # for _ in range(1000):
