@@ -61,7 +61,10 @@ if __name__ == "__main__":
     work_pool = Pool(4)
     [g1, g2, g3, g4] = work_pool.map(gen_mutations, [(sars_seq, 125)]*4)
     gen = g1+g2+g3+g4
-    min_dist = L.distance(covid_seq, sars_seq)
+    min_dist = L.distance(covid_seq, sars_seq) # Expect 6013 with current files
+    f = open("output/simulation/sim.csv", "a")
+    f.write("Closest, Current Closest")
+    f.close()
     print('Ready for the simulation')
     for _ in range(50000):
         gen_len = len(gen)
@@ -75,6 +78,7 @@ if __name__ == "__main__":
         [d1, d2, d3, d4] = work_pool.map(getFElement, [g1, g2, g3, g4])
         # distances = list(map(lambda x: x[0], gen))
         [m1, m2, m3, m4] = work_pool.map(min, [d1, d2, d3, d4])
+        current_min = min(m1, m2, m3, m4)
         min_dist = min(min_dist, m1, m2, m3, m4)
         gen = g1+g2+g3+g4
         gen.sort()
@@ -105,6 +109,9 @@ if __name__ == "__main__":
         g4 = gen[3*gen_len//4:]
         [g1, g2, g3, g4] = work_pool.map(list_mutate, [g1, g2, g3, g4])
         gen = g1 + g2 + g3 + g4
-        print(min_dist)
+        f = open("output/simulation/sim.csv", "a")
+        f.write("%d,%d" % min_dist, current_min)
+        f.close()
+        print(min_dist, current_min)
     # for _ in range(1000):
     #     print(L.distance(sars_seq, mutate(sars_seq)))
