@@ -31,12 +31,23 @@ def mutate(seq):
 gen = []
 for _ in range(500):
     gen.append(mutate(sars_seq))
+min_dist = L.distance(covid_seq, sars_seq)
 for _ in range(50000):
     gen = list(map(lambda x: (L.distance(sars_seq, x), x), gen))
+    distances = list(map(lambda x: x[0], gen))
+    min_dist = min(min_dist, min(distances))
     gen.sort()
-    gen.map(lambda x: x[1], gen)
+    gen = list(map(lambda x: x[1], gen))
     remutate = []
-    
-    print(gen[0])
+    direct_copy = []
+    for _ in range(250):
+        chosen = choice(gen)
+        gen.remove(chosen)
+        remutate.append(chosen)
+        direct_copy.append(gen[0])
+        gen = gen[1:]
+    remutate = list(map(lambda x: mutate(x), remutate))
+    gen = remutate + direct_copy
+    print(min_dist)
 # for _ in range(1000):
 #     print(L.distance(sars_seq, mutate(sars_seq)))
