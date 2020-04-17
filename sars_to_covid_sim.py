@@ -39,6 +39,12 @@ min_dist = L.distance(covid_seq, sars_seq)
 def get_dist(l):
     return list(map(lambda x: (L.distance(covid_seq, x), x), l))
 work_pool = Pool(4)
+def getFElement(l):
+    return list(map(lambda x: x[0], l))
+def getSElement(l):
+    return list(map(lambda x: x[1], l))
+def list_mutate(l):
+    return list(map(lambda k: mutate(k), l))
 print('Ready for the simulation')
 for _ in range(50000):
     gen_len = len(gen)
@@ -49,7 +55,7 @@ for _ in range(50000):
     [g1, g2, g3, g4] = work_pool.map(get_dist, [g1, g2, g3, g4])
     # gen = g1 + g2 + g3 + g4
     # gen = list(map(lambda x: (L.distance(covid_seq, x), x), gen))
-    [d1, d2, d3, d4] = work_pool.map(lambda x: x[0], [g1, g2, g3, g4])
+    [d1, d2, d3, d4] = work_pool.map(getFElement, [g1, g2, g3, g4])
     # distances = list(map(lambda x: x[0], gen))
     [m1, m2, m3, m4] = work_pool.map(min, [d1, d2, d3, d4])
     min_dist = min(min_dist, m1, m2, m3, m4)
@@ -59,7 +65,7 @@ for _ in range(50000):
     g2 = gen[gen_len//4:gen_len//2]
     g3 = gen[gen_len//2:3*gen_len//4]
     g4 = gen[3*gen_len//4:]
-    [g1, g2, g3, g4] = work_pool.map(lambda x: x[1], [g1, g2, g3, g4])
+    [g1, g2, g3, g4] = work_pool.map(getSElement, [g1, g2, g3, g4])
     # gen = list(map(lambda x: x[1], gen))
     remutate = []
     direct_copy = []
@@ -72,7 +78,7 @@ for _ in range(50000):
         gen = gen[1:]
     mut_len = len(remutate)
     [m1, m2, m3, m4] = [remutate[:mut_len//4], remutate[mut_len//4:mut_len//2], remutate[mut_len//2:3*mut_len//4], remutate[3*mut_len//4:]]
-    [m1, m2, m3, m4] = work_pool.map(lambda x: list(map(lambda k: mutate(k), x)), [m1, m2, m3, m4])
+    [m1, m2, m3, m4] = work_pool.map(list_mutate, [m1, m2, m3, m4])
     # remutate = list(map(lambda x: mutate(x), remutate))
     gen = remutate + direct_copy
     g1 = gen[:gen_len//4]
