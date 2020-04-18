@@ -6,25 +6,35 @@ def gen_mutations(arg):
     (seq, l) = arg
     return list(map(lambda x: mutate(seq), [1]*l))
 
+# def mutate(seq):
+#     # choose a character to mutate
+#     pos = randrange(len(seq))
+#     # What do I do with that position?
+#     todo = choice([
+#         "Remove",
+#         "Replace",
+#         "Add"
+#     ])
+#     if todo == "Remove":
+#         return seq[:pos] + seq[pos+1:]
+#     # either a replace or an add. Would need a character.
+#     l = ['A', 'C', 'G', 'T']
+#     if seq[pos] in l:
+#         l.remove(seq[pos])
+#     ch = choice(l)
+#     if(todo == "Replace"):
+#         return seq[:pos] + ch + seq[pos+1:]
+#     return seq[:pos] + ch + seq[pos:]
+
 def mutate(seq):
     # choose a character to mutate
     pos = randrange(len(seq))
     # What do I do with that position?
-    todo = choice([
-        "Remove",
-        "Replace",
-        "Add"
-    ])
-    if todo == "Remove":
-        return seq[:pos] + seq[pos+1:]
-    # either a replace or an add. Would need a character.
     l = ['A', 'C', 'G', 'T']
     if seq[pos] in l:
         l.remove(seq[pos])
     ch = choice(l)
-    if(todo == "Replace"):
-        return seq[:pos] + ch + seq[pos+1:]
-    return seq[:pos] + ch + seq[pos:]
+    return seq[:pos] + ch + seq[pos+1:]
 
 
 def get_dist(arg):
