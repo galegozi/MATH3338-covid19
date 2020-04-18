@@ -147,12 +147,18 @@ if __name__ == "__main__":
     f.write("Closest, Current Closest\n")
     f.close()
     print('Ready for the simulation')
-    for _ in range(50000):
+    for i in range(50000):
         gen = gen_next_pop(gen, covid_seq, work_pool=work_pool, workers=4)
+        my_file = "output/gen%d.txt"
+        f = open(my_file, "w")
+        for g in gen:
+            f.write("%s\n" % g)
+        f.close()
         best = best_fit(gen, covid_seq, work_pool, 4)
         min_dist = min(best, min_dist)
         avg = pop_fitness(gen, covid_seq, work_pool, 4)
         worst = worst_fit(gen, covid_seq, work_pool, 4)
         f = open("output/simulations/sim.csv", "a")
         f.write("%d, %d, %f, %d" % (min_dist, best, avg, worst))
+        f.close()
         print(avg,best, worst)
