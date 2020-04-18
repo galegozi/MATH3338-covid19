@@ -1,7 +1,7 @@
 # Problem: Find SARS-CoV-2.
 import Levenshtein as L
 import random as R
-from multiprocessing.pool import ThreadPool
+from multiprocessing import Pool
 # # Initial population: SARS+single mutation+padding
 
 
@@ -134,7 +134,7 @@ if __name__ == "__main__":
     # print(sars_seq)
     # print(covid_seq)
     # Start by applying 500 mutations on sars virus
-    work_pool = ThreadPool(4)
+    work_pool = Pool(4)
     gen = list(map(mutate, [sars_seq]*1000))
     p = abs(len(covid_seq) - len(sars_seq))
     gen = [padding(p, seq) for seq in gen]
