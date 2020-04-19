@@ -2,27 +2,40 @@
 import Levenshtein as L
 import random as R
 from multiprocessing import Pool
-# # Initial population: SARS+single mutation+padding
+# Initial population: SARS+single mutation+padding
+
+# alphabet = ['A', 'C', 'G', 'T']
 
 
 def mutate(seq):
+    # a = alphabet
     alphabet = ['A', 'C', 'G', 'T']
     # choose a character to mutate
     pos = R.randrange(len(seq))
     if seq[pos] in alphabet:
         alphabet.remove(seq[pos])
     ch = R.choice(alphabet)
+    # alphabet = ['A', 'C', 'G', 'T']
     return seq[:pos] + ch + seq[pos+1:]
+
+
+def padding_worker_fxn(x):
+    alphabet = ['A', 'C', 'G', 'T']
+    return ''.join([R.choice(alphabet) for _ in range(x)])
 
 
 def padding(length, seq, work_pool=None, workers=0):
     alphabet = ['A', 'C', 'G', 'T']
     if work_pool:
-        return seq + ''.join(work_pool.map(lambda x: ''.join([R.choice(alphabet) for _ in range(x)]),
+        return seq + ''.join(work_pool.map(padding_worker_fxn,
                                            [(length * (r+1))//workers - (length * r)//workers for r in range(workers)]))
     return seq + "".join([R.choice(alphabet) for _ in range(length)])
 
 # Fitness is Levenshtine distance
+
+def pop_fit_work_fxn(arg):
+    (x, target) = arg
+    return sum(L.distance(p, target) for p in x)
 
 
 def pop_fitness(pop, target, work_pool=None, workers=0):
@@ -30,12 +43,16 @@ def pop_fitness(pop, target, work_pool=None, workers=0):
         l = len(pop)
         return sum(
             work_pool.map(
-                lambda x: sum(L.distance(p, target) for p in x),
-                [pop[(l*r)//workers:(l*(r+1))//workers]
+                pop_fit_work_fxn,
+                [(pop[(l*r)//workers:(l*(r+1))//workers], target)
                  for r in range(workers)]
             )
         )/l
     return sum(L.distance(p, target) for p in pop)/len(pop)
+
+def best_fit_helper(arg):
+    (x, target) = arg
+    return min(L.distance(p, target) for p in x)
 
 
 def best_fit(pop, target, work_pool=None, workers=0):
@@ -43,21 +60,25 @@ def best_fit(pop, target, work_pool=None, workers=0):
         l = len(pop)
         return min(
             work_pool.map(
-                lambda x: min(L.distance(p, target) for p in x),
-                [pop[(l*r)//workers:(l*(r+1))//workers]
+                best_fit_helper,
+                [(pop[(l*r)//workers:(l*(r+1))//workers], target)
                  for r in range(workers)]
             )
         )
     return min(L.distance(p, target) for p in pop)
 
 
+def worst_helper(arg):
+    (x, target) = arg
+    return max(L.distance(p, target) for p in x)
+
 def worst_fit(pop, target, work_pool=None, workers=0):
     if work_pool:
         l = len(pop)
         return max(
             work_pool.map(
-                lambda x: max(L.distance(p, target) for p in x),
-                [pop[(l*r)//workers:(l*(r+1))//workers]
+                worst_helper,
+                [(pop[(l*r)//workers:(l*(r+1))//workers], target)
                  for r in range(workers)]
             )
         )
@@ -82,21 +103,21 @@ def single_breed(parents):
 
 
 def gen_next_pop(pop, target, retain=0.2, random_select=0.1, mutate=0.1, work_pool=None, workers=0):
-    # graded = [(L.distance(p, target), p) for p in pop]
-    l = len(pop)
-    g = work_pool.map(
-        lambda x: [(L.distance(p, target), p) for p in x],
-        [pop[(l*r)//workers:(l*(r+1))//workers] for r in range(workers)]
-    )
-    graded = []
-    for e in g:
-        graded += e
-    graded.sort()
-    # graded = [x[1] for x in sorted(graded)]
-    g = work_pool.map(
-        lambda x: [e[1] for e in x],
-        [graded[(l*r)//workers:(l*(r+1))//workers] for r in range(workers)]
-    )
+    graded = [(L.distance(p, target), p) for p in pop]
+    # l = len(pop)
+    # g = work_pool.map(
+    #     lambda x: [(L.distance(p, target), p) for p in x],
+    #     [pop[(l*r)//workers:(l*(r+1))//workers] for r in range(workers)]
+    # )
+    # graded = []
+    # for e in g:
+    #     graded += e
+    # graded.sort()
+    graded = [x[1] for x in sorted(graded)]
+    # g = work_pool.map(
+    #     lambda x: [e[1] for e in x],
+    #     [graded[(l*r)//workers:(l*(r+1))//workers] for r in range(workers)]
+    # )
     keep = int(len(graded)*retain)
     parents = graded[:keep]
     # TODO: paralell processing for two following loops.
@@ -161,4 +182,4 @@ if __name__ == "__main__":
         f = open("output/simulations/sim.csv", "a")
         f.write("%d, %d, %f, %d" % (min_dist, best, avg, worst))
         f.close()
-        print(avg,best, worst)
+        print(avg, best, worst)
