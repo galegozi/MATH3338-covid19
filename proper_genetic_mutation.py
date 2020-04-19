@@ -33,6 +33,7 @@ def padding(length, seq, work_pool=None, workers=0):
 
 # Fitness is Levenshtine distance
 
+
 def pop_fit_work_fxn(arg):
     (x, target) = arg
     return sum(L.distance(p, target) for p in x)
@@ -49,6 +50,7 @@ def pop_fitness(pop, target, work_pool=None, workers=0):
             )
         )/l
     return sum(L.distance(p, target) for p in pop)/len(pop)
+
 
 def best_fit_helper(arg):
     (x, target) = arg
@@ -71,6 +73,7 @@ def best_fit(pop, target, work_pool=None, workers=0):
 def worst_helper(arg):
     (x, target) = arg
     return max(L.distance(p, target) for p in x)
+
 
 def worst_fit(pop, target, work_pool=None, workers=0):
     if work_pool:
@@ -102,42 +105,95 @@ def single_breed(parents):
     return ''.join(R.choice([p1[pos], p2[pos]]) for pos in range(len(p1)))
 
 
+def distance_calc_worker(arg):
+    (x, target) = arg
+    return [(L.distance(p, target), p) for p in x]
+
+
+def snd(x):
+    return [e[1] for e in x]
+
+
+def build_parent(my_list):
+    output = []
+    for ind in my_list:
+        if 0.1 > R.random():
+            output.append(ind)
+    return output
+
+def list_mutate(my_list):
+    for i in range(len(my_list)):
+        if 0.1 > R.random():
+            my_list[i] = mutate(my_list[i])
+    return my_list
+
 def gen_next_pop(pop, target, retain=0.2, random_select=0.1, mutate=0.1, work_pool=None, workers=0):
-    graded = [(L.distance(p, target), p) for p in pop]
-    # l = len(pop)
-    # g = work_pool.map(
-    #     lambda x: [(L.distance(p, target), p) for p in x],
-    #     [pop[(l*r)//workers:(l*(r+1))//workers] for r in range(workers)]
-    # )
-    # graded = []
-    # for e in g:
-    #     graded += e
-    # graded.sort()
-    graded = [x[1] for x in sorted(graded)]
-    # g = work_pool.map(
-    #     lambda x: [e[1] for e in x],
-    #     [graded[(l*r)//workers:(l*(r+1))//workers] for r in range(workers)]
-    # )
+    # graded = [(L.distance(p, target), p) for p in pop]
+    l = len(pop)
+    g = work_pool.map(
+        distance_calc_worker,
+        [(pop[(l*r)//workers:(l*(r+1))//workers], target)
+         for r in range(workers)]
+    )
+    graded = []
+    for e in g:
+        graded += e
+    graded.sort()
+    # graded = [x[1] for x in sorted(graded)]
+    g = work_pool.map(
+        snd,
+        [graded[(l*r)//workers:(l*(r+1))//workers] for r in range(workers)]
+    )
     keep = int(len(graded)*retain)
     parents = graded[:keep]
-    # TODO: paralell processing for two following loops.
-    for ind in graded[keep:]:
-        if random_select > R.random():
-            parents.append(ind)
-    for i in range(len(parents)):
-        if mutate > R.random():
-            parents[i] = mutate(parents[i])
+    a_list = graded[keep:]
+    l = len(a_list)
+    temp = work_pool.map(
+        build_parent,
+        [a_list[(l*r)//workers:(l*(r+1))//workers] for r in range(workers)]
+    )
+    for t in temp:
+        parents += t
+    # for ind in graded[keep:]:
+    #     if random_select > R.random():
+    #         parents.append(ind)
+    # for i in range(len(parents)):
+    #     if mutate > R.random():
+    #         parents[i] = mutate(parents[i])
+    l = len(parents)
+    temp = work_pool.map(
+        list_mutate,
+        [parents[(l*r)//workers:(l*(r+1))//workers] for r in range(workers)]
+    )
+    parents = []
+    for t in temp:
+        parents += t
     ind_to_add = len(pop) - len(parents)
     children = []
     # TODO: Paralelize the following loop.
-    while(len(children) < ind_to_add):
-        p1 = R.choice(parents)
-        p2 = R.choice(parents)
-        if p1 != p2:
-            child = breed(p1, p2, work_pool, workers)
-            children.append(child)
+    temp = work_pool.map(
+        children_builder,
+        [(parents, (ind_to_add * (r+1))//workers - (ind_to_add * r)//workers) for r in range(workers)]
+    )
+    # while(len(children) < ind_to_add):
+    #     p1 = R.choice(parents)
+    #     p2 = R.choice(parents)
+    #     if p1 != p2:
+    #         child = breed(p1, p2, work_pool, workers)
+    #         children.append(child)
     parents += children
     return parents
+
+def children_builder(arg):
+    (parents, count) = arg
+    children = []
+    for _ in range(count):
+        p1 = R.choice(parents)
+        p2 = R.choice(parents)
+        while p1 == p2:
+            p1 = R.choice(parents)
+            p2 = R.choice(parents)
+        children.append(breed(p1, p2))
 
 
 if __name__ == "__main__":
