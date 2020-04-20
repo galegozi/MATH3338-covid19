@@ -79,10 +79,28 @@ def pop_fitness(pop, target, work_pool=None, workers=0):
 
 def best_fit_helper(arg):
     (x, target) = arg
+    if type(target) != str:
+        print(target)
+        import sys
+        sys.exit("target is not a string in best_fit_helper")
+    for k in x:
+        if type(k) != str:
+            print(k)
+            import sys
+            sys.exit("x contains a non-string argument in best_fit_helper")
     return min(L.distance(p, target) for p in x)
 
 
 def best_fit(pop, target, work_pool=None, workers=0):
+    for p in pop:
+        if type(p) != str:
+            import sys
+            print(p)
+            sys.exit("pop contains an item that is not a string in best_fit")
+    if type(target) != str:
+        import sys
+        print(target)
+        sys.exit("target is not a string in best_fit")
     if work_pool:
         l = len(pop)
         return min(
@@ -97,6 +115,15 @@ def best_fit(pop, target, work_pool=None, workers=0):
 
 def worst_helper(arg):
     (x, target) = arg
+    for e in x:
+        if type(e) != str:
+            print(e)
+            import sys
+            sys.exit("x contains a bad element in worst_helper")
+    if type(target) != str:
+        print(target)
+        import sys
+        sys.exit("target is not a string in worst_helper")
     return max(L.distance(p, target) for p in x)
 
 
@@ -173,6 +200,9 @@ def gen_next_pop(pop, target, retain=0.2, random_select=0.1, mutate=0.1, work_po
         snd,
         [graded[(l*r)//workers:(l*(r+1))//workers] for r in range(workers)]
     )
+    graded = []
+    for e in g:
+        graded += e
     keep = int(len(graded)*retain)
     parents = graded[:keep]
     a_list = graded[keep:]
