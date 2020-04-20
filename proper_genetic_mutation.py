@@ -8,6 +8,10 @@ from multiprocessing import Pool
 
 
 def mutate(seq):
+    if type(seq) != str:
+        import sys
+        print(seq)
+        sys.exit("Trying to mutate on an object with a bad type")
     # a = alphabet
     alphabet = ['A', 'C', 'G', 'T']
     # choose a character to mutate
