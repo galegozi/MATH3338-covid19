@@ -197,6 +197,9 @@ def gen_next_pop(pop, target, retain=0.2, random_select=0.1, mutate=0.1, work_po
     graded = []
     for e in g:
         graded += e
+    if len(graded) != 1000:
+        import sys
+        sys.exit("Population size changed during grading in gen_next_pop")
     graded.sort()
     # graded = [x[1] for x in sorted(graded)]
     g = work_pool.map(
