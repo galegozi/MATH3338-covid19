@@ -308,7 +308,7 @@ if __name__ == "__main__":
                 print(gen)
                 import sys
                 sys.exit("gen failed in generation %d" % i)
-        my_file = "output/gen%d.txt"
+        my_file = "output/backup/gen%d.txt" % i
         f = open(my_file, "w")
         for g in gen:
             f.write("%s\n" % g)
@@ -317,7 +317,7 @@ if __name__ == "__main__":
         min_dist = min(best, min_dist)
         avg = pop_fitness(gen, covid_seq, work_pool, 4)
         worst = worst_fit(gen, covid_seq, work_pool, 4)
-        f = open("output/simulations/sim.csv", "a")
+        f = open("output/simulation/sim.csv", "a")
         f.write("%d, %d, %f, %d" % (min_dist, best, avg, worst))
         f.close()
         print(i, min_dist, avg, best, worst)
