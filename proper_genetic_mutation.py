@@ -142,6 +142,11 @@ def worst_fit(pop, target, work_pool=None, workers=0):
 
 
 def breed(p1, p2, work_pool=None, workers=0):
+    if len(p1) != len(p2) or len(p1) == 0:
+        import sys
+        print(p1)
+        print(p2)
+        sys.exit("Invalid call to breed, len(p1) = %d, len(p2) = %d" % (len(p1), len(p2)))
     if work_pool:
         l = len(p1)
         return ''.join(
@@ -213,6 +218,9 @@ def gen_next_pop(pop, target, retain=0.2, random_select=0.1, mutate=0.1, work_po
     keep = int(len(graded)*retain)
     parents = graded[:keep]
     a_list = graded[keep:]
+    if len(parents) + len(a_list) != 1000:
+        import sys
+        sys.exit("Population size changed during partitioning at keep in next_gen_pop")
     l = len(a_list)
     temp = work_pool.map(
         build_parent,
@@ -233,6 +241,9 @@ def gen_next_pop(pop, target, retain=0.2, random_select=0.1, mutate=0.1, work_po
         [parents[(l*r)//workers:(l*(r+1))//workers] for r in range(workers)]
     )
     parents = [item for t in temp for item in t]
+    if len(parents) != l:
+        import sys
+        sys.exit("Error: the length of parents changed when mutating elements in next_gen_pop")
     # for t in temp:
     #     parents += t
     ind_to_add = len(pop) - len(parents)
