@@ -163,7 +163,7 @@ def gen_next_pop(pop, target, retain=0.2, random_select=0.1, mutate=0.1, work_po
     l = len(parents)
     temp = work_pool.map(
         list_mutate,
-        [parents[(l*r)//workers:(l*(r+1))//workers] for r in range(workers)]
+        [parents[(l*r)//workers:(l*(r+1))//workers] for r in range(workers)]  # TODO: Fix me.
     )
     parents = []
     for t in temp:
@@ -202,30 +202,53 @@ if __name__ == "__main__":
     f = open("genomes/sars_cov_2/sars_cov_2_ref.fasta", "r")
     covid_seq = ''.join([x[:-1] for x in f.readlines()[1:]])
     f.close()
+    if type(covid_seq) != str:
+        print(covid_seq)
+        import sys
+        sys.exit("Covid sequence")
     print('Done reading the COVID-CoV-2 sequence')
     f = open("genomes/sars_urbani/default_sars.fasta", "r")
     sars_seq = ''.join([x[:-1] for x in f.readlines()[1:]])
     f.close()
-
+    if type(sars_seq) != str:
+        print(sars_seq)
+        import sys
+        sys.exit("Sars Sequence")
     print('Done reading the SARS Urbani sequence')
     # print(sars_seq)
     # print(covid_seq)
     # Start by applying 500 mutations on sars virus
     work_pool = Pool(4)
-    gen = list(map(mutate, [sars_seq]*1000))
+    gen = list(map(mutate, [sars_seq]*1000))  # TODO: Multi-thread this.
+    for g in gen:
+        if type(g) != str:
+            print(gen)
+            import sys
+            sys.exit("Making gen")
     p = abs(len(covid_seq) - len(sars_seq))
+    print("here is p: ", p)
     gen = [padding(p, seq) for seq in gen]
+    for g in gen:
+        if type(g) != str:
+            print(gen)
+            import sys
+            sys.exit("adding padding")
     # [g1, g2, g3, g4] = work_pool.map(gen_mutations, [(sars_seq, 125)]*4)
     # gen = g1+g2+g3+g4
 #     print(gen)
     # Expect 6013 with current files
-    min_dist = L.distance(covid_seq, sars_seq)
+    min_dist = L.distance(covid_seq, sars_seq)  # If everything so far works, then this works too.
     f = open("output/simulation/sim.csv", "w")
     f.write("Closest, Current Closest\n")
     f.close()
     print('Ready for the simulation')
     for i in range(50000):
         gen = gen_next_pop(gen, covid_seq, work_pool=work_pool, workers=4)
+        for g in gen:
+            if type(g) != str:
+                print(gen)
+                import sys
+                sys.exit("gen failed in generation %d" % i)
         my_file = "output/gen%d.txt"
         f = open(my_file, "w")
         for g in gen:
@@ -238,4 +261,4 @@ if __name__ == "__main__":
         f = open("output/simulations/sim.csv", "a")
         f.write("%d, %d, %f, %d" % (min_dist, best, avg, worst))
         f.close()
-        print(avg, best, worst)
+        print(i, min_dist, avg, best, worst)
