@@ -240,7 +240,7 @@ def gen_next_pop(pop, target, retain=0.2, random_select=0.1, mutate=0.1, work_po
         children_builder,
         [(parents, (ind_to_add * (r+1))//workers - (ind_to_add * r)//workers) for r in range(workers)]
     )
-    children = [item for t in temp for item in t]
+    children = [item for t in temp if t for item in t]
     # while(len(children) < ind_to_add):
     #     p1 = R.choice(parents)
     #     p2 = R.choice(parents)
