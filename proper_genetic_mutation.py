@@ -186,6 +186,9 @@ def list_mutate(my_list):
 def gen_next_pop(pop, target, retain=0.2, random_select=0.1, mutate=0.1, work_pool=None, workers=0):
     # graded = [(L.distance(p, target), p) for p in pop]
     l = len(pop)
+    if l != 1000:
+        import sys
+        sys.exit("Wrong population size in gen_next_pop")
     g = work_pool.map(
         distance_calc_worker,
         [(pop[(l*r)//workers:(l*(r+1))//workers], target)
@@ -292,6 +295,7 @@ if __name__ == "__main__":
             print(gen)
             import sys
             sys.exit("adding padding")
+    print("Before the simulation, gen has %d elements." % len(gen))
     # [g1, g2, g3, g4] = work_pool.map(gen_mutations, [(sars_seq, 125)]*4)
     # gen = g1+g2+g3+g4
 #     print(gen)
@@ -307,12 +311,15 @@ if __name__ == "__main__":
             if type(g) != str:
                 print(gen)
                 import sys
-                sys.exit("gen failed in generation %d" % i)
+                sys.exit("gen failed in generation %d (one of the elements is not a string)" % i)
         my_file = "output/backup/gen%d.txt" % i
         f = open(my_file, "w")
         for g in gen:
             f.write("%s\n" % g)
         f.close()
+        if len(gen) != 1000:
+            import sys
+            sys.exit("Error: the length of gen is not right. Please check the log file for generation %d" % i)
         best = best_fit(gen, covid_seq, work_pool, 4)
         min_dist = min(best, min_dist)
         avg = pop_fitness(gen, covid_seq, work_pool, 4)
