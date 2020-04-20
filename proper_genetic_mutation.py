@@ -206,9 +206,7 @@ def gen_next_pop(pop, target, retain=0.2, random_select=0.1, mutate=0.1, work_po
         snd,
         [graded[(l*r)//workers:(l*(r+1))//workers] for r in range(workers)]
     )
-    graded = []
-    for e in g:
-        graded += e
+    graded = [item for sub in g for item in sub]
     if len(graded) != 1000:
         import sys
         sys.exit("Population size changed during snd call in gen_next_pop")
@@ -220,8 +218,9 @@ def gen_next_pop(pop, target, retain=0.2, random_select=0.1, mutate=0.1, work_po
         build_parent,
         [a_list[(l*r)//workers:(l*(r+1))//workers] for r in range(workers)]
     )
-    for t in temp:
-        parents += t
+    parents += [item for t in temp for item in t]
+    # for t in temp:
+    #     parents += t
     # for ind in graded[keep:]:
     #     if random_select > R.random():
     #         parents.append(ind)
@@ -233,16 +232,15 @@ def gen_next_pop(pop, target, retain=0.2, random_select=0.1, mutate=0.1, work_po
         list_mutate,
         [parents[(l*r)//workers:(l*(r+1))//workers] for r in range(workers)]
     )
-    parents = []
-    for t in temp:
-        parents += t
+    parents = [item for t in temp for item in t]
+    # for t in temp:
+    #     parents += t
     ind_to_add = len(pop) - len(parents)
-    children = []
-    # TODO: Paralelize the following loop.
     temp = work_pool.map(
         children_builder,
         [(parents, (ind_to_add * (r+1))//workers - (ind_to_add * r)//workers) for r in range(workers)]
     )
+    children = [item for t in temp for item in t]
     # while(len(children) < ind_to_add):
     #     p1 = R.choice(parents)
     #     p2 = R.choice(parents)
