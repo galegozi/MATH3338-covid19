@@ -194,9 +194,9 @@ def gen_next_pop(pop, target, retain=0.2, random_select=0.1, mutate=0.1, work_po
         [(pop[(l*r)//workers:(l*(r+1))//workers], target)
          for r in range(workers)]
     )
-    graded = []
-    for e in g:
-        graded += e
+    graded = [item for sub in g for item in sub]
+    # for e in g:
+    #     graded += e
     if len(graded) != 1000:
         import sys
         sys.exit("Population size changed during grading in gen_next_pop")
@@ -209,6 +209,9 @@ def gen_next_pop(pop, target, retain=0.2, random_select=0.1, mutate=0.1, work_po
     graded = []
     for e in g:
         graded += e
+    if len(graded) != 1000:
+        import sys
+        sys.exit("Population size changed during snd call in gen_next_pop")
     keep = int(len(graded)*retain)
     parents = graded[:keep]
     a_list = graded[keep:]
@@ -228,7 +231,7 @@ def gen_next_pop(pop, target, retain=0.2, random_select=0.1, mutate=0.1, work_po
     l = len(parents)
     temp = work_pool.map(
         list_mutate,
-        [parents[(l*r)//workers:(l*(r+1))//workers] for r in range(workers)]  # TODO: Fix me.
+        [parents[(l*r)//workers:(l*(r+1))//workers] for r in range(workers)]
     )
     parents = []
     for t in temp:
