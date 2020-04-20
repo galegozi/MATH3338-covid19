@@ -29,6 +29,10 @@ def padding_worker_fxn(x):
 
 
 def padding(length, seq, work_pool=None, workers=0):
+    if type(seq) != str:
+        print(seq)
+        import sys
+        sys.exit("Seq is not a string in padding")
     alphabet = ['A', 'C', 'G', 'T']
     if work_pool:
         return seq + ''.join(work_pool.map(padding_worker_fxn,
@@ -39,11 +43,28 @@ def padding(length, seq, work_pool=None, workers=0):
 
 
 def pop_fit_work_fxn(arg):
+    if type(x) == str:
+        print(x)
+        import sys
+        sys.exit("x is a string in pop_fit_work_fxn")
+    if type(target) != str:
+        print(target)
+        import sys
+        sys.exit("Target is not a string in pop_fit_work_fxn")
     (x, target) = arg
     return sum(L.distance(p, target) for p in x)
 
 
 def pop_fitness(pop, target, work_pool=None, workers=0):
+    for p in pop:
+        if type(p) != str:
+            print(p)
+            import sys
+            sys.exit("The population contains a non-string element in pop_fitness")
+    if type(target) != str:
+        print(target)
+        import sys
+        sys.exit("The target is not a string")
     if work_pool:
         l = len(pop)
         return sum(
@@ -127,6 +148,10 @@ def build_parent(my_list):
 
 def list_mutate(my_list):
     for i in range(len(my_list)):
+        if type(my_list[i]) != str:
+            print(my_list[i])
+            import sys
+            sys.exit("MyList[%d] is not a string in list_mutate" % i)
         if 0.1 > R.random():
             my_list[i] = mutate(my_list[i])
     return my_list
