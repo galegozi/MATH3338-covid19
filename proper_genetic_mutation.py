@@ -43,6 +43,7 @@ def padding(length, seq, work_pool=None, workers=0):
 
 
 def pop_fit_work_fxn(arg):
+    (x, target) = arg
     if type(x) == str:
         print(x)
         import sys
@@ -51,7 +52,6 @@ def pop_fit_work_fxn(arg):
         print(target)
         import sys
         sys.exit("Target is not a string in pop_fit_work_fxn")
-    (x, target) = arg
     return sum(L.distance(p, target) for p in x)
 
 
