@@ -21,17 +21,19 @@ def padding(x):
 def run_me(arg):
     (covid_seq, ratg13_seq) = arg
     num_padding = len(covid_seq) - len(ratg13_seq)
-    dist_now = L.distance(covid_seq, ratg13_seq)
     ratg13_seq += padding(num_padding)
+    dist_now = L.distance(covid_seq, ratg13_seq)
     current_seq = ratg13_seq
     worsening = 0
-    for _ in range(50000):
+    for iter in range(50000):
+        if iter % 1000 == 0:
+            print("Iteration %d" % iter)
         mutated = mutate(current_seq)
         mutated_dist = L.distance(mutated, covid_seq)
         if mutated_dist <= dist_now:
             dist_now = mutated_dist
             current_seq = mutated
-        if mutated_dist > dist_now:
+        else:
             worsening += 1
         print("The distance is now %d" % dist_now)
     print("The final distance is %d units away from COVID 19." % dist_now)
