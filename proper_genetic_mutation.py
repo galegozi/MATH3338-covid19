@@ -12,6 +12,9 @@ def mutate(seq):
         import sys
         print(seq)
         sys.exit("Trying to mutate on an object with a bad type")
+    if len(seq) == 0:
+        import sys
+        sys.exit("Trying to mutate on an empty string")
     # a = alphabet
     alphabet = ['A', 'C', 'G', 'T']
     # choose a character to mutate
@@ -264,6 +267,11 @@ def gen_next_pop(pop, target, retain=0.2, random_select=0.1, mutate=0.1, work_po
 def children_builder(arg):
     (parents, count) = arg
     children = []
+    while len(children) < count:
+        p1 = R.choice(parents)
+        p2 = R.choice(parents)
+        if p1 != p2:
+            children.append(breed(p1, p2))
     for _ in range(count):
         p1 = R.choice(parents)
         p2 = R.choice(parents)
