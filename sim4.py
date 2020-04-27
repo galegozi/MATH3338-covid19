@@ -1,44 +1,43 @@
-def lcs(X, Y):
-    m = len(X)
-    n = len(Y)
-    L = [['' for i in range(n+1)] for j in range(2)]
-    bi = bool
+import random as R
 
-    for i in range(m):
-        bi = i & 1
 
-        for j in range(n+1):
-            if (i == 0 or j == 0):
-                L[bi][j] = ''
+def padding(x):
+    alphabet = ['A', 'C', 'G', 'T']
+    return ''.join([R.choice(alphabet) for _ in range(x)])
 
-            elif (X[i] == Y[j - 1]):
-                L[bi][j] = L[1 - bi][j - 1] + X[i]
 
-            else:
-                s1 = L[1 - bi][j]
-                s2 = L[bi][j - 1]
-                if len(s1) >= len(s2):
-                    L[bi][j] = s1
-                else:
-                    L[bi][j] = s2
-    return L[bi][n]
-# load sequences from files.
+# Load sequences and LCS from file
 f = open("genomes/sars_cov_2/sars_cov_2_ref_NC_045512.fasta", "r")
 covid_seq = ''.join([x[:-1] for x in f.readlines()[1:]])
 f.close()
 f = open("genomes/RaTG13_MN996532.fasta", "r")
 ratg13_seq = ''.join([x[:-1] for x in f.readlines()[1:]])
 f.close()
-# Compute LCS on sequences.
-seq = lcs(covid_seq, ratg13_seq)
+f = open('lcs.txt', 'r')
+lcs = f.read()
 # Fill in missing characters.
 covid_pos = 0
 rat_pos = 0
-new_covid = ''
 new_rat = ''
-# for ch in seq:
-#     print(ch)
-f = open("lcs.txt", "w")
-f.write(seq)
-f.close()
-print(len(seq))
+for ch in lcs:
+    while covid_seq[covid_pos] != ch and ratg13_seq[rat_pos] != ch:
+        new_rat += ratg13_seq[rat_pos]
+        covid_pos += 1
+        rat_pos += 1
+    if covid_seq[covid_pos] == ch and ratg13_seq[rat_pos] == ch:
+        new_rat += ch
+        covid_pos += 1
+        rat_pos += 1
+        continue
+    while covid_seq[covid_pos] != ch:
+        new_rat += covid_seq[covid_pos]
+        covid_pos += 1
+    while ratg13_seq[rat_pos] != ch:
+        # new_rat += R.choice(['A', 'C', 'G', 'T'])
+        rat_pos += 1
+    new_rat += ch
+    covid_pos += 1
+    rat_pos += 1
+# Pad new_rat
+new_rat += padding(len(covid_seq) - len(new_rat))
+#then mutate.
