@@ -25,8 +25,8 @@ def run_me(arg):
     dist_now = L.distance(covid_seq, ratg13_seq)
     current_seq = ratg13_seq
     worsening = 0
-    for iter in range(50000):
-        if iter % 1000 == 0:
+    for iter in range(9000):
+        if iter % 100 == 0:
             print("Iteration %d" % iter)
         mutated = mutate(current_seq)
         mutated_dist = L.distance(mutated, covid_seq)
