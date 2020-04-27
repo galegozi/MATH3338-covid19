@@ -38,4 +38,7 @@ new_covid = ''
 new_rat = ''
 # for ch in seq:
 #     print(ch)
+f = open("lcs.txt", "w")
+f.write(seq)
+f.close()
 print(len(seq))
