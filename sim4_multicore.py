@@ -34,7 +34,7 @@ def run_me(arg):
     current_seq = ratg13_seq
     # We start with the RATG13 sequence.
     worsening = 0
-    # Counting the number of iterations where the mutations tried to increase the distance.
+    # Counting the nuber of iterations where the mutations tried to increase the distance.
     for iter in range(50000):
         # Go through 50000 iterations
         if iter % 100 == 0:
